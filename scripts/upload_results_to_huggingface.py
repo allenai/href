@@ -75,8 +75,8 @@ def upload(args):
     # initialize csv file
     os.makedirs(os.path.join(save_dir, subset_name), exist_ok=True)
     results_titles = [c.lower().replace(" ", "_") for c in nr_category] + ["average"] 
-    rank_titles = [f"{cat.lower().replace(" ", "_")}_rank" for cat in nr_category] + ["average_rank"]
-    confi_titles = [f"{cat.lower().replace(" ", "_")}_confi" for cat in nr_category] + ["average_confi"]
+    rank_titles = [f"{cat.lower().replace(' ', '_')}_rank" for cat in nr_category] + ["average_rank"]
+    confi_titles = [f"{cat.lower().replace(' ', '_')}_confi" for cat in nr_category] + ["average_confi"]
 
     # read annotations
     positive_rates = defaultdict(list)
@@ -100,31 +100,6 @@ def upload(args):
         _, lower, upper = bootstrap(model_annotations, statistic=calculate_win_rate)
         confidence_interval[model].append((upper-average_positive_rate, lower-average_positive_rate, upper, lower))
         annotations[model].append(model_annotations)
-
-    # calculate ranking
-    # rankings = defaultdict(list)
-    # for cat_index, cat in enumerate((nr_category + ["Average"])):
-    #     # sort data by average
-    #     sorted_positive_rates = dict(sorted(positive_rates.items(), key=lambda x: x[1][cat_index], reverse=True))
-    #     sorted_annotations = [[m] + annotations[m] for m in sorted_positive_rates]
-
-    #     # decide distinguishibility ranking
-    #     i = 0
-    #     while i < len(sorted_annotations):
-    #         model_name = sorted_annotations[i][0]
-    #         cur_annotation_list = sorted_annotations[i][cat_index+1]
-    #         # decide if the following model is distinguishable from the current
-    #         rankings[model_name].append(i+1)
-    #         newly_added = 0
-    #         for j in range(i + 1, len(sorted_annotations), 1):
-    #             next_model_name = sorted_annotations[j][0]
-    #             next_annotation_list = sorted_annotations[j][cat_index+1]
-    #             if not decide_is_distinguishable(cur_annotation_list, next_annotation_list):
-    #                 rankings[next_model_name].append(i+1)
-    #                 newly_added += 1
-    #             else:
-    #                 break
-    #         i += 1 + newly_added
 
     # calculate ranking
     rankings = defaultdict(list)
@@ -151,8 +126,6 @@ def upload(args):
                     break
             i += 1 + newly_added
 
-    
-
     # add rankings and sort by average finally
     sorted_positive_rates = dict(sorted(positive_rates.items(), key=lambda x: x[1][-1], reverse=True))
     sorted_results = [[m] + rates for m, rates in sorted_positive_rates.items()]
@@ -174,11 +147,11 @@ def upload(args):
             for i, title in enumerate(confi_titles)})
         json.dump(output_json, open(os.path.join(save_dir, subset_name, f"{model}.json"), 'w'), indent=4)
 
-    # files = api.list_repo_files(repo_id=args.dataset, repo_type="dataset")
-    # # Loop through and delete each file
-    # for file_path in files:
-    #     api.delete_file(path_in_repo=file_path, repo_id=args.dataset, repo_type="dataset")
-    #     print(f"Deleted {file_path}")
+    files = api.list_repo_files(repo_id=args.dataset, repo_type="dataset")
+    # Loop through and delete each file
+    for file_path in files:
+        api.delete_file(path_in_repo=file_path, repo_id=args.dataset, repo_type="dataset")
+        print(f"Deleted {file_path}")
 
     api.upload_folder(
         folder_path=os.path.join(save_dir),
@@ -227,13 +200,13 @@ def main():
     parser.add_argument(
         "--config_dir",
         type=str,
-        default="results",
+        default="href/generation/configs",
         help="Path to the dir that contains the annotation files."
     )
     parser.add_argument(
         "--save_dir",
         type=str, 
-        default="results",
+        default="results_for_upload",
         help="Directory to save all results."
     )
     parser.add_argument(

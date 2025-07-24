@@ -1,0 +1,10 @@
+model_name_or_path: meta-llama/Meta-Llama-3.1-8B-Instruct
+tokenizer_name_or_path: meta-llama/Meta-Llama-3.1-8B-Instruct
+use_vllm: true
+use_slow_tokenizer: false
+max_new_tokens: 8192
+temperature: 0.0
+batch_size: 1
+load_in_8bit: false
+gptq: false
+format: default

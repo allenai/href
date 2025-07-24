@@ -114,7 +114,7 @@ def generate(args):
             os.makedirs(save_dir, exist_ok=True)
 
         logging.info(f"Running inference on category: {category}")
-        if config['model_name_or_path'] is not None: # local model
+        if not config.get('openai', False): # local model
             if config['use_vllm']:
                 logging.info(f"Using VLLM:{sampling_params}")
                 category_outputs = vllm_model.generate(category_prompts, sampling_params)
