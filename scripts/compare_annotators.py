@@ -121,8 +121,6 @@ def evaluate(args):
 
     # load model responses
     href_data = datasets.load_dataset(args.dataset)[args.split]
-    href_data2 = datasets.load_dataset("json", data_files=f"tmp/processed_model_responses_11x25_private.jsonl", split="train")
-    href_data = datasets.concatenate_datasets([href_data, href_data2])
     data = defaultdict(list)
     for example in href_data:
         category = example['category']
@@ -208,8 +206,7 @@ def main():
         "--nr_category",
         type=str,
         default=["Generation", "Open QA", "Brainstorm", "Rewrite", "Summarize",
-                 "Classify", "Closed QA", "Extract", "Reasoning Over Numerical Data",
-                 "Multi-Document Synthesis", "Fact Checking or Attributed QA"],
+                 "Classify", "Closed QA", "Extract"],
         nargs="+",
         help="Categories in the HREF to include."
     )

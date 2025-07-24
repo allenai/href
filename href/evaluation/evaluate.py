@@ -8,17 +8,6 @@ import datasets
 from alpaca_eval import evaluate as alpaca_farm_evaluate
 from href.evaluation.evaluators import DEFINED_ANNOTATORS, ANNOTATOR_SUITE_DICT
 import href.evaluation.evaluators as annotator_funcs
-import torch
-import GPUtil
-
-def print_gpu_utilization():
-    gpus = GPUtil.getGPUs()
-    for gpu in gpus:
-        print(f"GPU ID: {gpu.id}, Name: {gpu.name}")
-        print(f"Memory Used: {gpu.memoryUsed} MB")
-        print(f"Memory Total: {gpu.memoryTotal} MB")
-        print(f"Memory Free: {gpu.memoryFree} MB")
-        print(f"Memory Utilization: {gpu.memoryUtil * 100:.2f}%")
 
 def evaluate(args):
     assert args.model_name is not None, "Model name should be specified."
@@ -84,9 +73,6 @@ def evaluate(args):
 
     results = {"Average": {"wins": [], "ties": []}}
     
-    ### DEBUG
-    print("Before evaluation:")
-    print_gpu_utilization()
     for annotator, categories in annotator_to_cateogries.items():
         logging.info(f"Categories {categories} will use annotator {annotator}")
         use_human_reference = category_to_annotator[categories[0]]['use_human_ref']
@@ -197,10 +183,6 @@ def evaluate(args):
                 }
                 results["Average"]["wins"].extend([cur_a['preference'] == 2.0 for cur_a in cur_annotations_category])
                 results["Average"]["ties"].extend([cur_a['preference'] == 0.0 for cur_a in cur_annotations_category])
-
-        torch.cuda.empty_cache()
-        print(f"After empty cache")
-        print_gpu_utilization()
     
     for c, result in results.items():
         for t, annotations in result.items():
@@ -249,10 +231,7 @@ def main():
         "--nr_category",
         type=str,
         default=["Generation", "Open QA", "Brainstorm", "Rewrite", "Summarize",
-                 "Classify", "Closed QA", "Extract", "Reasoning Over Numerical Data",
-                 "Multi-Document Synthesis", "Fact Checking or Attributed QA"],
-        # default=["Generation", "Open QA", "Brainstorm", "Rewrite", "Summarize",
-                #  "Classify", "Closed QA", "Extract"],
+                 "Classify", "Closed QA", "Extract"],
         nargs="+",
         help="Categories in the HREF to include."
     )
